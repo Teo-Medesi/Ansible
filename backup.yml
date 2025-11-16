@@ -1,16 +1,17 @@
 ---
-- name: save Network Config to Persistent AWX Directory
+- name: Save Network Config to Persistent AWX Directory
   hosts: all
-  become: yes
+  gather_facts: no # Keep this as 'no'
   
+  vars:
+    # Use the lookup plugin to get the current timestamp from the AWX host
+    current_timestamp: "{{ lookup('pipe', 'date +%Y%m%d_%H%M%S') }}"
+    
   tasks:
-    - name: get and save running config
+    - name: Get and save running config
       cisco.ios.ios_config:
         backup: yes
         backup_options:
-          # Define the absolute, persistent path inside the container.
-          dir_path: "/var/lib/awx/projects/network_backups/{{ ansible_date_time.iso8601 | regex_replace('[^0-9]', '_') }}"
-          
-          # Optional: Define the filename format
+          # Use the new variable 'current_timestamp' for the folder name
+          dir_path: "/var/lib/awx/projects/network_backups/{{ current_timestamp }}"
           filename: "{{ inventory_hostname }}_config.cfg"
-      
