@@ -1,0 +1,19 @@
+---
+- hosts: routers
+  become: yes 
+
+  tasks: 
+    - name: Create Loopback8
+      cisco.ios.ios_interfaces:
+        config:
+          - name: Loopback8
+            description: Created by Ansible!
+            enabled: true
+    - name: Configure Loopback8 IP
+      cisco.ios.ios_l3_interfaces:
+        config:
+          - name: Loopback8
+            ipv4:
+              - address: 8.8.8.8/32
+
+      
