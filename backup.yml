@@ -1,14 +1,22 @@
 ---
-- name: Backup Cisco IOS Running Configuration
+- name: 🚀 Save Network Config to Persistent AWX Directory
   hosts: all
+  become: yes
   gather_facts: no
-
+  
   tasks:
-    - name: Fetch and save the running-config
+    - name: 1. Fetch running config using cli_config
       ansible.netcommon.cli_config:
-        backup: yes
-      register: config_backup
+        commands:
+          - show running-config
+      register: config_output
       
-    - name: Display the location of the backup file
-      ansible.builtin.debug:
-        msg: "Backup for {{ inventory_hostname }} saved to: {{ config_backup.backup_path }}"
+    - name: 2. Save the output to a persistent location on the control node
+      ansible.builtin.copy:
+        # Use config_output.stdout to get the raw text output of the command
+        content: "{{ config_output.stdout[0] }}" 
+        # Define a persistent, accessible path on the AWX host.
+        # /var/lib/awx/projects is a common place for persistent data in AWX.
+        dest: "/var/lib/awx/projects/network_backups/{{ inventory_hostname }}_config_{{ ansible_date_time.iso8601 | regex_replace('[^0-9]', '_') }}.cfg"
+      # IMPORTANT: This runs the 'copy' task on the AWX host, NOT the network device.
+      delegate_to: localhost
