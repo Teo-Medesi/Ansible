@@ -2,7 +2,7 @@
 - name: save Network Config to Persistent AWX Directory
   hosts: all
   become: yes
-  gather_facts: no
+  gather_facts: yes
   
   tasks:
     - name: get and save running config
