@@ -1,0 +1,14 @@
+---
+- name: Backup Cisco IOS Running Configuration
+  hosts: all
+  gather_facts: no
+
+  tasks:
+    - name: Fetch and save the running-config
+      ansible.netcommon.cli_config:
+        backup: yes
+      register: config_backup
+      
+    - name: Display the location of the backup file
+      ansible.builtin.debug:
+        msg: "Backup for {{ inventory_hostname }} saved to: {{ config_backup.backup_path }}"
